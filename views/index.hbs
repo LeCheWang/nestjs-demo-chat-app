@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>App</title>
+  </head>
+  <body>
+    <div id="join_form">
+      <input type="text" id="ip_name" placeholder="enter your name" />
+      <input type="text" id="ip_room" placeholder="enter room" />
+      <button id="submit">submit</button>
+    </div>
+    <div id="message_form" style="display: none;">
+      <input type="text" id="ip_message" placeholder="enter your message" />
+      <button id="send">send</button>
+    </div>
+    <ul id="ul" style="display: none;">
+      <li>...</li>
+    </ul>
+
+    <!-- that script important -->
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+      const joinForm = document.getElementById('join_form')
+      const ip_name = document.getElementById("ip_name")
+      const ip_room = document.getElementById("ip_room")
+      const btnSubmit = document.getElementById('submit')
+
+      const messageForm = document.getElementById('message_form')
+      const ip_message = document.getElementById("ip_message")
+      const btn_send = document.getElementById('send')
+
+      const ul = document.getElementById('ul')
+
+      var socket = io.connect();
+      
+      btnSubmit.addEventListener("click", ()=>{
+          socket.emit("join", {name: ip_name.value, room: ip_room.value}, ()=>{
+            joinForm.style.display='none';
+            messageForm.style.display='block';
+            ul.style.display='block';
+          })
+      })
+
+      socket.on('message', (message)=>{
+        const li = document.createElement('li')
+        li.innerHTML = `[${message.name}]: ${message.text}`
+        ul.appendChild(li)
+      })
+
+      btn_send.addEventListener("click", ()=>{
+        sendMessage()
+      })
+      ip_message.addEventListener("keydown", (e)=>{
+        if (e.key==='Enter'){
+          sendMessage()
+        }
+      })
+
+      function sendMessage(){
+        socket.emit("createMessage", {text: ip_message.value}, (message)=>{
+          ip_message.value = ''
+          const li = document.createElement('li')
+          li.innerHTML = `[${message.name}]: ${message.text}`
+          ul.appendChild(li)
+        })
+      }
+    </script>
+  </body>
+</html>
