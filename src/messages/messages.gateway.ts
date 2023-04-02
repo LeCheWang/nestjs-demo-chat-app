@@ -53,6 +53,6 @@ export class MessagesGateway {
   ) {
     const name = await this.messagesService.getClientName(client.id);
 
-    client.broadcast.emit('typing', { name, isTyping });
+    client.to(this.rooms[client.id]).emit('typing', { name, isTyping });
   }
 }
